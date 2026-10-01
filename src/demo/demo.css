@@ -1,11 +1,103 @@
-:root { font-family: system-ui, sans-serif; color-scheme: light dark; }
-body { margin: 0; }
-main { max-width: 40rem; margin: 10vh auto; padding: 0 1.5rem; }
-button { font: inherit; padding: 0.6rem 1rem; border-radius: 0.5rem; border: 1px solid currentColor; background: transparent; color: inherit; cursor: pointer; }
-.modal { width: min(90vw, 28rem); padding: 1.5rem; border: 0; border-radius: 0.75rem; }
-.modal::backdrop { background: rgba(0, 0, 0, 0.5); }
-.modal--small { width: min(90vw, 22rem); }
-.modal h2 { margin-top: 0; }
-.modal label { display: grid; gap: 0.3rem; margin-bottom: 1rem; }
-.modal input { font: inherit; padding: 0.5rem; }
-.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+:root {
+  color-scheme: light dark;
+  --bg: light-dark(#f6f7f8, #0e1013);
+  --surface: light-dark(#ffffff, #16191d);
+  --fg: light-dark(#16181d, #eceef1);
+  --muted: light-dark(#5d6471, #9aa1ab);
+  --border: light-dark(#e3e6ea, #262a30);
+  --accent: light-dark(#008060, #3fbf94);
+  --accent-fg: light-dark(#ffffff, #06231a);
+  --danger: light-dark(#c4320a, #ff7a59);
+  --code-bg: light-dark(#f1f3f5, #101215);
+  --radius: 14px;
+  font-family: 'Inter', ui-sans-serif, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.55;
+  -webkit-font-smoothing: antialiased;
+}
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--fg); }
+a { color: var(--accent); }
+code, pre { font-family: 'JetBrains Mono', ui-monospace, monospace; font-size: 0.86em; font-variant-ligatures: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* the demo's modals take the page palette */
+[data-rmc-modal] {
+  --rmc-bg: var(--surface);
+  --rmc-fg: var(--fg);
+  --rmc-muted: var(--muted);
+}
+
+.hero, .grid, .footer { width: min(1080px, 100% - 32px); margin-inline: auto; }
+.hero { padding: 56px 0 32px; }
+.hero__top { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
+.hero h1 { margin: 24px 0 12px; font-size: clamp(2.2rem, 5vw, 3.6rem); line-height: 1.05; letter-spacing: -0.03em; }
+.lead { max-width: 46rem; margin: 0; font-size: 1.12rem; color: var(--muted); }
+.lead code { color: var(--fg); background: var(--code-bg); padding: 0.1em 0.4em; border-radius: 6px; }
+.hero__actions { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; margin-top: 24px; }
+.install { padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--surface); user-select: all; }
+.link { font-weight: 500; }
+.status { margin: 20px 0 0; font-size: 0.9rem; color: var(--muted); }
+
+.badge {
+  display: inline-block; padding: 6px 12px; border-radius: 999px;
+  background: color-mix(in oklab, var(--accent) 12%, transparent); color: var(--accent);
+  font-size: 0.82rem; font-weight: 500;
+}
+
+.theme { display: inline-flex; padding: 3px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); }
+.theme button {
+  padding: 5px 12px; border: 0; border-radius: 999px; background: transparent; color: var(--muted);
+  font: inherit; font-size: 0.82rem; text-transform: capitalize; cursor: pointer;
+}
+.theme button[aria-checked='true'] { background: var(--fg); color: var(--bg); }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 460px), 1fr)); gap: 20px; padding-bottom: 48px; }
+.card {
+  display: flex; flex-direction: column; gap: 12px; padding: 24px;
+  border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface);
+}
+.card h2 { margin: 0; font-size: 1.15rem; }
+.card p { margin: 0; color: var(--muted); }
+.card__action { min-height: 44px; display: flex; align-items: flex-start; }
+.card pre { margin: auto 0 0; padding: 16px 18px; overflow-x: auto; border-radius: 10px; background: var(--code-bg); line-height: 1.65; font-size: 0.8rem; }
+.card pre code { font-size: inherit; }
+
+.button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 42px; padding: 0 18px; border: 1px solid transparent; border-radius: 10px;
+  background: var(--accent); color: var(--accent-fg); font: inherit; font-weight: 500; cursor: pointer;
+  transition: filter 150ms, background-color 150ms;
+}
+.button:hover { filter: brightness(1.06); }
+.button--ghost { background: transparent; color: var(--fg); border-color: var(--border); }
+.button--ghost:hover { background: var(--code-bg); filter: none; }
+.button--danger { background: var(--danger); color: #fff; }
+.button--small { min-height: 32px; padding: 0 12px; font-size: 0.85rem; }
+.button--block { width: 100%; }
+
+.products { width: 100%; margin: 0; padding: 0; list-style: none; }
+.products li {
+  display: grid; grid-template-columns: 1fr auto auto; align-items: center; gap: 12px;
+  padding: 8px 0; border-top: 1px solid var(--border);
+}
+.products li:first-child { border-top: 0; }
+.products--plain li { grid-template-columns: 1fr auto; padding: 14px 0; }
+.muted { color: var(--muted); }
+
+.modal-title { margin: 0 40px 6px 0; font-size: 1.3rem; letter-spacing: -0.01em; }
+[data-rmc-modal] p { margin: 0 0 16px; }
+.form { display: grid; gap: 16px; }
+.form label { display: grid; gap: 6px; font-weight: 500; font-size: 0.92rem; }
+.form input {
+  min-height: 44px; padding: 0 12px; border: 1px solid var(--border); border-radius: 10px;
+  background: var(--bg); color: var(--fg); font: inherit;
+}
+.actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; margin-top: 8px; }
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin: 16px 0; padding: 0; border: 0; }
+.checks legend { margin-bottom: 8px; padding: 0; }
+.checks label { display: flex; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; cursor: pointer; }
+.drawer-total { display: flex; justify-content: space-between; margin: 16px 0; padding-top: 16px; border-top: 1px solid var(--border); }
+
+.footer { padding: 24px 0 40px; border-top: 1px solid var(--border); color: var(--muted); font-size: 0.9rem; }

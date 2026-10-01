@@ -1,0 +1,181 @@
+/*
+ * react-modal-context: optional styles.
+ * import 'react-modal-context/styles.css'
+ *
+ * Everything sits in @layer rmc, so any style of yours wins without !important.
+ * Theme through custom properties on [data-rmc-modal] or :root.
+ */
+@layer rmc {
+  :where([data-rmc-modal]) {
+    --rmc-bg: light-dark(#ffffff, #17191c);
+    --rmc-fg: light-dark(#16181d, #eceef1);
+    --rmc-muted: light-dark(#5d6471, #a3a9b3);
+    --rmc-border: light-dark(rgb(22 24 29 / 0.08), rgb(255 255 255 / 0.08));
+    --rmc-backdrop: light-dark(rgb(15 18 22 / 0.45), rgb(0 0 0 / 0.6));
+    --rmc-backdrop-blur: 6px;
+    --rmc-radius: 16px;
+    --rmc-padding: 24px;
+    --rmc-shadow: 0 1px 2px rgb(0 0 0 / 0.06), 0 24px 64px -12px rgb(0 0 0 / 0.3);
+    --rmc-width: 32rem;
+    --rmc-gap: 16px;
+    --rmc-duration: 220ms;
+    --rmc-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+    --rmc-enter-translate: 0 12px;
+    --rmc-enter-scale: 0.97;
+
+    color-scheme: light dark;
+    box-sizing: border-box;
+    width: min(var(--rmc-width), calc(100vw - 2 * var(--rmc-gap)));
+    max-width: none;
+    max-height: calc(100dvh - 2 * var(--rmc-gap));
+    margin: auto;
+    padding: var(--rmc-padding);
+    overflow: auto;
+    overscroll-behavior: contain;
+    border: 1px solid var(--rmc-border);
+    border-radius: var(--rmc-radius);
+    background: var(--rmc-bg);
+    color: var(--rmc-fg);
+    box-shadow: var(--rmc-shadow);
+
+    opacity: 0;
+    translate: var(--rmc-enter-translate);
+    scale: var(--rmc-enter-scale);
+    transition:
+      opacity var(--rmc-duration) var(--rmc-ease),
+      translate var(--rmc-duration) var(--rmc-ease),
+      scale var(--rmc-duration) var(--rmc-ease),
+      overlay var(--rmc-duration) allow-discrete,
+      display var(--rmc-duration) allow-discrete;
+  }
+
+  :where([data-rmc-modal][open]) {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+
+  @starting-style {
+    :where([data-rmc-modal][open]) {
+      opacity: 0;
+      translate: var(--rmc-enter-translate);
+      scale: var(--rmc-enter-scale);
+    }
+  }
+
+  :where([data-rmc-modal])::backdrop {
+    background-color: transparent;
+    backdrop-filter: blur(0);
+    transition:
+      background-color var(--rmc-duration) var(--rmc-ease),
+      backdrop-filter var(--rmc-duration) var(--rmc-ease),
+      overlay var(--rmc-duration) allow-discrete,
+      display var(--rmc-duration) allow-discrete;
+  }
+
+  :where([data-rmc-modal][open])::backdrop {
+    background-color: var(--rmc-backdrop);
+    backdrop-filter: blur(var(--rmc-backdrop-blur));
+  }
+
+  @starting-style {
+    :where([data-rmc-modal][open])::backdrop {
+      background-color: transparent;
+      backdrop-filter: blur(0);
+    }
+  }
+
+  /* Sizes */
+  :where([data-rmc-modal][data-size='sm']) { --rmc-width: 24rem; }
+  :where([data-rmc-modal][data-size='lg']) { --rmc-width: 48rem; }
+  :where([data-rmc-modal][data-size='full']) {
+    --rmc-width: 100vw;
+    --rmc-gap: 0px;
+    --rmc-radius: 0px;
+    height: 100dvh;
+  }
+
+  /* Placement: top */
+  :where([data-rmc-modal][data-placement='top']) {
+    margin-block-start: max(var(--rmc-gap), 8vh);
+    --rmc-enter-translate: 0 -12px;
+  }
+
+  /* Placement: bottom sheet */
+  :where([data-rmc-modal][data-placement='bottom']) {
+    --rmc-width: 40rem;
+    --rmc-enter-translate: 0 100%;
+    --rmc-enter-scale: 1;
+    margin-block-end: 0;
+    border-end-start-radius: 0;
+    border-end-end-radius: 0;
+    padding-block-end: calc(var(--rmc-padding) + env(safe-area-inset-bottom));
+  }
+
+  @media (max-width: 40rem) {
+    :where([data-rmc-modal][data-placement='bottom']) {
+      width: 100vw;
+      border-inline: 0;
+      border-end-start-radius: 0;
+      border-end-end-radius: 0;
+    }
+  }
+
+  /* Placement: side drawers */
+  :where([data-rmc-modal][data-placement='left'], [data-rmc-modal][data-placement='right']) {
+    --rmc-width: 26rem;
+    --rmc-enter-scale: 1;
+    height: 100dvh;
+    max-height: none;
+    margin-block: 0;
+    border-block: 0;
+    border-radius: 0;
+    width: min(var(--rmc-width), 100vw);
+  }
+
+  :where([data-rmc-modal][data-placement='right']) {
+    margin-inline-end: 0;
+    border-inline-end: 0;
+    --rmc-enter-translate: 100% 0;
+  }
+
+  :where([data-rmc-modal][data-placement='left']) {
+    margin-inline-start: 0;
+    border-inline-start: 0;
+    --rmc-enter-translate: -100% 0;
+  }
+
+  /* Close button */
+  :where([data-rmc-modal] [data-rmc-close]) {
+    position: absolute;
+    inset-block-start: 12px;
+    inset-inline-end: 12px;
+    display: inline-grid;
+    place-items: center;
+    width: 36px;
+    height: 36px;
+    padding: 0;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: var(--rmc-muted);
+    cursor: pointer;
+    transition: background-color 150ms, color 150ms;
+  }
+
+  :where([data-rmc-modal] [data-rmc-close]:hover) {
+    background: var(--rmc-border);
+    color: var(--rmc-fg);
+  }
+
+  :where([data-rmc-modal] [data-rmc-close]:focus-visible) {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    :where([data-rmc-modal]) {
+      --rmc-duration: 1ms;
+    }
+  }
+}

@@ -1,93 +1,202 @@
 # react-modal-context
 
 Modals by id for React. One provider, a `useModal('login')` hook you can call anywhere in the tree,
-and a `<Modal>` built on the native `<dialog>` element, so the browser does the hard parts:
-focus trapping, Escape, inert background and the top layer.
+and a `<Modal>` on the native `<dialog>`, so the browser does the hard parts: the top layer, focus,
+the inert page behind it and Escape.
 
-TypeScript, zero dependencies, about 120 lines. Copy the two files or install from the repo.
+- **Zero dependencies**, about 3 kB gzipped (plus 1.4 kB for the optional CSS). React 18 and 19.
+- **Pass data** to a modal: `confirm.open(product)`.
+- **Open from anywhere**: components, event handlers, timers, outside React through the store.
+- **Re-renders only what changed**: built on `useSyncExternalStore`.
+- **Optional CSS** with enter and exit animations, bottom sheets, side drawers, sizes, light and dark themes.
+- **Accessible by default**: an accessible name is required by the types, `autoFocus` works, focus returns on close.
+- Works with Next.js App Router (`'use client'` included) and server rendering.
 
 **Demo:** [react-modal-context.vercel.app](https://react-modal-context.vercel.app)
 
-## Why
+## Install
 
-Most modal state ends up as `const [open, setOpen] = useState(false)` lifted three components up,
-with props drilled down to a button. With an id-based context the button that opens the modal and
-the modal itself can live anywhere, and nothing in between needs to know.
+```bash
+npm i github:oleharch/react-modal-context
+```
+
+The package builds itself on install (`prepare`), so you get compiled JavaScript and type definitions.
 
 ## Usage
 
 ```tsx
-import { Modal, ModalProvider, useModal } from 'react-modal-context'
+import { Modal, ModalClose, ModalProvider, useModal } from 'react-modal-context'
+import 'react-modal-context/styles.css' // optional
 
-function App() {
+export function App() {
   return (
     <ModalProvider>
       <Header />
-      <LoginModal />
+      <SignInModal />
     </ModalProvider>
   )
 }
 
 function Header() {
-  const login = useModal('login')
-  return <button onClick={login.open}>Sign in</button>
+  const signIn = useModal('sign-in')
+  return <button onClick={() => signIn.open()}>Sign in</button>
 }
 
-function LoginModal() {
-  const login = useModal('login')
+function SignInModal() {
   return (
-    <Modal id="login" labelledBy="login-title">
-      <h2 id="login-title">Sign in</h2>
-      <button onClick={login.close}>Close</button>
+    <Modal id="sign-in" labelledBy="sign-in-title" size="sm">
+      <ModalClose />
+      <h2 id="sign-in-title">Sign in</h2>
+      <input type="email" autoFocus />
     </Modal>
   )
 }
 ```
 
+### Pass data
+
+```tsx
+type Product = { id: number; name: string }
+
+const confirm = useModal<Product>('confirm-delete')
+confirm.open(product)
+
+<Modal<Product> id="confirm-delete" labelledBy="confirm-title" closeOnBackdrop={false} role="alertdialog">
+  {({ data, close }) => (
+    <>
+      <h2 id="confirm-title">Delete {data?.name}?</h2>
+      <button onClick={close}>Cancel</button>
+    </>
+  )}
+</Modal>
+```
+
+The last data stays available while the close animation runs, so the text does not blink.
+
+### Open from outside React
+
+```tsx
+import { createModalStore, ModalProvider } from 'react-modal-context'
+
+export const modals = createModalStore()
+
+<ModalProvider store={modals}>...</ModalProvider>
+
+// anywhere: a fetch callback, a WebSocket message, a router guard
+modals.open('session-expired')
+```
+
+### Sheets and drawers
+
+```tsx
+<Modal id="filters" labelledBy="filters-title" placement="bottom" keepMounted>…</Modal>
+<Modal id="cart" labelledBy="cart-title" placement="right">…</Modal>
+```
+
+`placement` and `size` only set `data-placement` and `data-size`. They take effect with the optional stylesheet
+or with your own CSS.
+
 ## API
 
 ### `<ModalProvider>`
 
-Holds the list of open modal ids. Put it once near the root.
-
-### `useModal(id)`
-
-Returns `{ open, close, isOpen }` bound to that id. Stable between renders.
-
-### `useModalContext()`
-
-The raw context: `openModals`, `openModal(id)`, `closeModal(id?)` (without an id closes the one opened last),
-`closeAll()`, `isOpen(id)`. Throws outside the provider.
-
-### `<Modal>`
-
-| Prop | Type | Default | What it does |
+| Prop | Type | Default | |
 |---|---|---|---|
-| `id` | `string` | | Id used by `useModal` |
-| `label` | `string` | | `aria-label` of the dialog |
-| `labelledBy` | `string` | | `aria-labelledby`, prefer this when there is a visible heading |
-| `className` | `string` | | Class on the `<dialog>`; style `::backdrop` from CSS |
-| `closeOnBackdrop` | `boolean` | `true` | Close when the backdrop is clicked |
-| `onClose` | `() => void` | | Called after the dialog closes for any reason |
+| `store` | `ModalStore` | a new store | Pass one to open modals from outside React |
+| `lockScroll` | `boolean` | `true` | Lock page scroll while any modal is open (`overflow: hidden` + `scrollbar-gutter: stable`, no layout shift) |
 
-Children are rendered only while the modal is open, so forms reset and effects clean up on close.
-Modals stack: Escape closes the top one, `closeAll()` closes everything.
+### `useModal<T>(id)`
 
-## How it works
+Returns `{ isOpen, data, open(data?), close() }` for one modal. The component re-renders only when that modal opens,
+closes or gets new data.
 
-- The provider keeps `string[]` of open ids. Opening the same id twice is a no-op.
-- `<Modal>` renders a `<dialog>` into `document.body` through a portal and calls `showModal()` / `close()`
-  whenever the context changes.
-- The dialog's `close` event (Escape, `dialog.close()`) writes back to the context, so the two never drift.
-- Body scroll is locked while a modal is open.
+### `<Modal<T>>`
+
+Accepts every `<dialog>` attribute (`className`, `style`, `role`, `data-*`…) plus:
+
+| Prop | Type | Default | |
+|---|---|---|---|
+| `id` | `string` | | Required |
+| `labelledBy` or `label` | `string` | | One is required: the id of the visible title, or a text label |
+| `describedBy` | `string` | | `aria-describedby` |
+| `children` | `ReactNode \| ({ id, data, close }) => ReactNode` | | Content, or a render function that gets the data |
+| `closeOnBackdrop` | `boolean` | `true` | A click outside the dialog box closes it. Clicks on the padding and text selections that end outside do not |
+| `closeOnEscape` | `boolean` | `true` | Escape and the Android back gesture |
+| `keepMounted` | `boolean` | `false` | Keep children (and their state) while closed |
+| `placement` | `'center' \| 'top' \| 'bottom' \| 'left' \| 'right'` | `center` | For the stylesheet |
+| `size` | `'sm' \| 'md' \| 'lg' \| 'full'` | `md` | For the stylesheet |
+| `portal` | `boolean \| Element` | `false` | Not needed: a modal dialog renders in the top layer. Use only if the DOM must live elsewhere |
+| `onOpen`, `onClose` | `() => void` | | `onClose` runs for every way of closing |
+
+### `<ModalClose>`
+
+A button that closes the modal it is in. Without children it renders an × icon labelled "Close". Takes every `<button>` attribute.
+
+### Other exports
+
+| Export | |
+|---|---|
+| `createModalStore()` | `{ open(id, data?), close(id?), closeAll(), getSnapshot(), subscribe() }`. `close()` without an id closes the top modal |
+| `useCurrentModal()` | `{ id, data, close }` of the modal the component is rendered in |
+| `useModalContext()` | The whole stack: `openModals`, `openModal`, `closeModal`, `closeAll`, `isOpen`. Re-renders on every change |
+| `useModalStore()`, `useModalEntry(id)` | Low-level access |
+
+## Styling
+
+The stylesheet is optional and lives in `@layer rmc`, so any style of yours wins without `!important`.
+Change the look with custom properties:
+
+```css
+[data-rmc-modal] {
+  --rmc-bg: #fff;
+  --rmc-fg: #16181d;
+  --rmc-radius: 20px;
+  --rmc-padding: 28px;
+  --rmc-width: 36rem;
+  --rmc-backdrop: rgb(0 0 0 / 0.5);
+  --rmc-backdrop-blur: 8px;
+  --rmc-duration: 250ms;
+}
+```
+
+Defaults use `light-dark()`, so both themes follow `color-scheme`. Animations use `@starting-style` and
+`transition-behavior: allow-discrete` for the dialog and its `::backdrop`, and respect `prefers-reduced-motion`.
+The component waits for the exit transition (`getAnimations()`) before it unmounts the content, so your own CSS
+animations get the same treatment.
+
+## Browser support
+
+The native `<dialog>` works in every current browser. Enter and exit animations need `@starting-style`
+(Chrome 117, Safari 17.5, Firefox 129); older browsers open and close instantly. Light dismiss uses the
+`closedby` attribute where it exists (Chrome 134) and a JavaScript fallback elsewhere.
+
+## Testing your app
+
+jsdom does not implement `showModal()`. Add this to your test setup:
+
+```ts
+HTMLDialogElement.prototype.showModal ??= function () { this.setAttribute('open', '') }
+HTMLDialogElement.prototype.close ??= function () {
+  this.removeAttribute('open')
+  this.dispatchEvent(new Event('close'))
+}
+```
+
+## Migrating from 1.x
+
+- `<Modal>` needs `label` or `labelledBy` (a TypeScript error otherwise).
+- Modals render in place instead of a portal into `document.body`. Pass `portal` to keep the old behaviour.
+- `openModal(id, data)` with an id that is already open now updates its data.
+- Scroll lock moved to the provider and sets `overflow` on `<html>` instead of `<body>`.
 
 ## Development
 
 ```bash
 npm install
 npm run dev        # demo on http://localhost:5173
-npm test           # vitest + Testing Library
+npm test           # Vitest + Testing Library
 npm run typecheck
+npm run build      # library to dist/, demo to demo-dist/
 ```
 
 ## License
