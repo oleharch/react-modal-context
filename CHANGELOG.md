@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.0.1
+
+- `open` passed straight to `onClick` (`onClick={modal.open}`, the 1.x style) no longer stores the click event as modal data.
+
 ## 2.0.0
 
 ### Added

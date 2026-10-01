@@ -49,6 +49,10 @@ export interface UseModalResult<T> {
   close: () => void
 }
 
+/* `onClick={modal.open}` passes the click event; never treat a React event as modal data. */
+const isReactEvent = (value: unknown) =>
+  typeof value === 'object' && value !== null && 'nativeEvent' in value && 'currentTarget' in value
+
 /** `const login = useModal('login')` then `login.open()`, `login.close()`, `login.isOpen`. */
 export function useModal<T = unknown>(id: string): UseModalResult<T> {
   const store = useModalStore()
@@ -57,7 +61,7 @@ export function useModal<T = unknown>(id: string): UseModalResult<T> {
     () => ({
       isOpen: entry !== undefined,
       data: entry?.data,
-      open: (data?: T) => store.open(id, data),
+      open: (data?: T) => store.open(id, isReactEvent(data) ? undefined : data),
       close: () => store.close(id),
     }),
     [store, id, entry],

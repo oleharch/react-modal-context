@@ -176,6 +176,24 @@ describe('data', () => {
     expect(screen.getByText('Delete Linen Shirt?')).toBeInTheDocument()
     expect(screen.getByTestId('hook')).toHaveTextContent('Linen Shirt')
   })
+  it('ignores the click event when open is passed straight to onClick', async () => {
+    function Direct() {
+      const modal = useModal('direct')
+      return <button onClick={modal.open}>direct</button>
+    }
+    function Data() {
+      const modal = useModal('direct')
+      return <span data-testid="data">{String(modal.data)}</span>
+    }
+    render(
+      <ModalProvider>
+        <Direct />
+        <Data />
+      </ModalProvider>,
+    )
+    await userEvent.click(screen.getByText('direct'))
+    expect(screen.getByTestId('data')).toHaveTextContent('undefined')
+  })
 })
 
 describe('rendering', () => {
