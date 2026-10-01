@@ -1,6 +1,6 @@
 {
   "name": "react-modal-context",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Modals by id for React: ModalProvider, a useModal hook and a Modal on the native <dialog>. TypeScript, zero dependencies, optional CSS with enter/exit animations, sheets and drawers.",
   "keywords": [
     "react",

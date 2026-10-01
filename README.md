@@ -164,6 +164,28 @@ Defaults use `light-dark()`, so both themes follow `color-scheme`. Animations us
 The component waits for the exit transition (`getAnimations()`) before it unmounts the content, so your own CSS
 animations get the same treatment.
 
+### Theme switching
+
+The default colours use `light-dark()`, so they follow `color-scheme`. A theme toggle only has to set it:
+
+```ts
+document.documentElement.style.colorScheme = 'dark' // 'light', or '' for the system setting
+```
+
+If your app switches themes with a class instead, map the tokens to your own variables
+(`[data-rmc-modal] { --rmc-bg: var(--surface); --rmc-fg: var(--text) }`).
+
+**Vite 8 and other Lightning CSS builds:** with default browser targets, `light-dark()` is rewritten into a
+`prefers-color-scheme` fallback that follows the OS and ignores `color-scheme`, so a toggle stops working in
+production only. Target browsers with native `light-dark()`:
+
+```ts
+// vite.config.ts
+export default defineConfig({
+  build: { cssTarget: ['chrome123', 'edge123', 'firefox120', 'safari17.5'] },
+})
+```
+
 ## Browser support
 
 The native `<dialog>` works in every current browser. Enter and exit animations need `@starting-style`

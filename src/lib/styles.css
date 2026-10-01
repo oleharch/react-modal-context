@@ -23,7 +23,7 @@
     --rmc-enter-translate: 0 12px;
     --rmc-enter-scale: 0.97;
 
-    color-scheme: light dark;
+    /* color-scheme is inherited from the page, so a theme toggle on <html> reaches the modal too. */
     box-sizing: border-box;
     width: min(var(--rmc-width), calc(100vw - 2 * var(--rmc-gap)));
     max-width: none;

@@ -1,5 +1,11 @@
 # Changelog
 
+## 2.0.2
+
+- Styles: the modal no longer forces `color-scheme: light dark`; it inherits the page's scheme, so a theme toggle on `<html>` switches modals too.
+- README: theme switching, and the Lightning CSS (Vite 8) build target that keeps `light-dark()` working.
+- Demo: CSS build targets with native `light-dark()`, so the theme toggle works in production.
+
 ## 2.0.1
 
 - `open` passed straight to `onClick` (`onClick={modal.open}`, the 1.x style) no longer stores the click event as modal data.
