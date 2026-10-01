@@ -1,0 +1,11 @@
+:root { font-family: system-ui, sans-serif; color-scheme: light dark; }
+body { margin: 0; }
+main { max-width: 40rem; margin: 10vh auto; padding: 0 1.5rem; }
+button { font: inherit; padding: 0.6rem 1rem; border-radius: 0.5rem; border: 1px solid currentColor; background: transparent; color: inherit; cursor: pointer; }
+.modal { width: min(90vw, 28rem); padding: 1.5rem; border: 0; border-radius: 0.75rem; }
+.modal::backdrop { background: rgba(0, 0, 0, 0.5); }
+.modal--small { width: min(90vw, 22rem); }
+.modal h2 { margin-top: 0; }
+.modal label { display: grid; gap: 0.3rem; margin-bottom: 1rem; }
+.modal input { font: inherit; padding: 0.5rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 0.5rem; }

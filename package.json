@@ -1,0 +1,33 @@
+{
+  "name": "react-modal-context",
+  "version": "1.0.0",
+  "description": "Modals by id with React Context, a useModal hook and the native <dialog> element. TypeScript, no dependencies.",
+  "type": "module",
+  "main": "./src/lib/index.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc --noEmit && vite build",
+    "preview": "vite preview",
+    "test": "vitest run",
+    "typecheck": "tsc --noEmit"
+  },
+  "peerDependencies": {
+    "react": ">=18",
+    "react-dom": ">=18"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
+    "@vitejs/plugin-react": "^4.4.0",
+    "jsdom": "^26.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "typescript": "^5.8.0",
+    "vite": "^6.3.0",
+    "vitest": "^3.1.0"
+  },
+  "license": "MIT"
+}
